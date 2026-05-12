@@ -42,7 +42,7 @@ nav.tabs button:hover { color: var(--text); }
 nav.tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
 section.tab { display: none; padding: 16px 24px; }
 section.tab.active { display: block; }
-#leaflet-map { height: calc(100vh - 220px); min-height: 500px; border-radius: 6px; border: 1px solid var(--border); }
+#leaflet-map { height: 55vh; min-height: 360px; border-radius: 6px; border: 1px solid var(--border); }
 .map-legend { margin-top: 12px; display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
 .map-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .map-legend .swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
@@ -134,6 +134,51 @@ table tr:hover { background: var(--panel2); }
 .marker-cluster-large { background: rgba(248, 81, 73, 0.4); }
 .marker-cluster-large div { background: rgba(248, 81, 73, 0.85); color: white; }
 .marker-cluster div { font-weight: 600; }
+.position-marker { background: none !important; border: none !important; }
+.position-marker-inner {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: white;
+  border: 3px solid #f0883e;
+  box-shadow: 0 0 0 2px rgba(13, 17, 23, 0.5), 0 0 16px rgba(240, 136, 62, 0.85);
+}
+/* Position info panel + slider */
+.position-bar {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+  padding: 12px 16px; margin-top: 12px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px;
+  align-items: center;
+}
+.position-bar .item .l { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.position-bar .item .v { font-size: 14px; font-weight: 600; margin-top: 2px; }
+.position-bar .item.poi .v { font-size: 12px; font-weight: 400; color: var(--blue); }
+.position-bar .item.surface .v.unpaved { color: #f85149; }
+.position-bar .item.surface .v.suspect { color: #d29922; }
+.position-bar .item.surface .v.paved { color: #56d364; }
+.slider-wrap {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+  padding: 16px 20px; margin-top: 8px;
+}
+.slider-wrap .slider-label { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; margin-bottom: 8px; }
+.slider-wrap input[type=range] {
+  -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px;
+  background: var(--panel2); outline: none;
+}
+.slider-wrap input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 22px; height: 22px;
+  border-radius: 50%; background: var(--accent); cursor: grab;
+  border: 2px solid white; box-shadow: 0 0 8px rgba(240,136,62,0.6);
+}
+.slider-wrap input[type=range]::-moz-range-thumb {
+  width: 22px; height: 22px; border-radius: 50%; background: var(--accent);
+  cursor: grab; border: 2px solid white; box-shadow: 0 0 8px rgba(240,136,62,0.6);
+}
+.slider-wrap input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; }
+.slider-buttons { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.slider-buttons button {
+  background: var(--panel2); border: 1px solid var(--border); color: var(--text);
+  padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;
+}
+.slider-buttons button:hover { border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -164,6 +209,29 @@ table tr:hover { background: var(--panel2); }
   <div id="profile-wrap" style="position: relative; margin-top: 16px;">
     <svg id="profile-chart" preserveAspectRatio="none"></svg>
     <div id="profile-tooltip"></div>
+  </div>
+  <div class="position-bar">
+    <div class="item"><div class="l">Position</div><div class="v" id="info-km">0.0 km</div></div>
+    <div class="item"><div class="l">Altitude</div><div class="v" id="info-alt">0 m</div></div>
+    <div class="item surface"><div class="l">Surface</div><div class="v paved" id="info-surface">paved</div></div>
+    <div class="item"><div class="l">Heure projetée</div><div class="v" id="info-clock">Fri 07:00</div></div>
+    <div class="item poi"><div class="l">POI le plus proche</div><div class="v" id="info-poi">—</div></div>
+  </div>
+  <div class="slider-wrap">
+    <div class="slider-label"><span>km 0 — Porto-Vecchio</span><span>km 487 — Biguglia</span></div>
+    <input type="range" id="profile-slider" min="0" max="487" step="0.2" value="0" />
+    <div class="slider-buttons">
+      <button data-km="0">🏁 Start</button>
+      <button data-km="164">CP1 Ghisoni</button>
+      <button data-km="174">High point (1 291 m)</button>
+      <button data-km="251">Climb 1 066 m</button>
+      <button data-km="333">CP2 Crocicchia</button>
+      <button data-km="378">Bakery breakfast</button>
+      <button data-km="433">Last fuel pre-Seq C</button>
+      <button data-km="440">Sequence C start</button>
+      <button data-km="455">Sequence C end</button>
+      <button data-km="487">🏁 Finish</button>
+    </div>
   </div>
 </section>
 <section class="tab" id="tab-climbs">
@@ -485,45 +553,142 @@ function drawProfile() {
     svg.appendChild(c);
   }
 
-  // Interactive hover line + crosshair
+  // Persistent cursor line (driven by updatePosition)
   const cursorLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
   cursorLine.setAttribute('y1', yTop); cursorLine.setAttribute('y2', yBot);
-  cursorLine.setAttribute('stroke', '#e6edf3'); cursorLine.setAttribute('stroke-width', '1');
-  cursorLine.setAttribute('opacity', '0'); cursorLine.setAttribute('pointer-events', 'none');
+  cursorLine.setAttribute('stroke', '#f0883e'); cursorLine.setAttribute('stroke-width', '1.5');
+  cursorLine.setAttribute('opacity', '0.85'); cursorLine.setAttribute('pointer-events', 'none');
   svg.appendChild(cursorLine);
+  // Expose to outer scope for updates
+  svg._cursorLine = cursorLine;
+  svg._xOf = xOf;
+  svg._xLeft = xLeft;
+  svg._xRight = xRight;
+  svg._totalKm = totalKm;
 
-  let mapMarker = null;
+  // Hover behavior: shows ephemeral tooltip + moves the persistent cursor
   svg.addEventListener('mousemove', e => {
     const rect = svg.getBoundingClientRect();
     const ratio = (e.clientX - rect.left) / rect.width;
     const px = ratio * W;
-    if (px < xLeft || px > xRight) { tooltip.style.display = 'none'; cursorLine.setAttribute('opacity', '0'); return; }
+    if (px < xLeft || px > xRight) { tooltip.style.display = 'none'; return; }
     const km = ((px - xLeft) / (xRight - xLeft)) * totalKm;
-    cursorLine.setAttribute('x1', px); cursorLine.setAttribute('x2', px);
-    cursorLine.setAttribute('opacity', '0.6');
-    // Find nearest sample
     let best = DATA.track[0], bd = Infinity;
     for (const p of DATA.track) {
       const d = Math.abs(p.km - km);
       if (d < bd) { bd = d; best = p; }
     }
-    const klass = classAtKm(km);
-    const clockTime = clockTimeAtKm(km);
     tooltip.style.display = 'block';
     tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
     tooltip.style.top = (e.clientY - rect.top - 60) + 'px';
-    tooltip.innerHTML = `<b>km ${km.toFixed(1)}</b><br>${Math.round(best.ele)} m<br>${klass}<br><span style="color:#f0883e">${clockTime}</span>`;
-    if (mapMarker) map.removeLayer(mapMarker);
-    mapMarker = L.circleMarker([best.lat, best.lon], { radius: 6, color: '#e6edf3', fillColor: '#f0883e', fillOpacity: 1, weight: 2 }).addTo(map);
+    tooltip.innerHTML = `<b>km ${km.toFixed(1)}</b><br>${Math.round(best.ele)} m<br><span style="color:#f0883e">${clockTimeAtKm(km)}</span><br><span style="opacity:0.7">click to pin</span>`;
   });
-  svg.addEventListener('mouseleave', () => {
-    tooltip.style.display = 'none';
-    cursorLine.setAttribute('opacity', '0');
-    if (mapMarker) { map.removeLayer(mapMarker); mapMarker = null; }
+  svg.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+  svg.addEventListener('click', e => {
+    const rect = svg.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    const px = ratio * W;
+    if (px < xLeft || px > xRight) return;
+    const km = ((px - xLeft) / (xRight - xLeft)) * totalKm;
+    updatePosition(km, true);
   });
 }
-window.addEventListener('resize', drawProfile);
+window.addEventListener('resize', () => { drawProfile(); updatePosition(currentKm, false); });
 drawProfile();
+
+// --- Unified position state (driven by slider, buttons, or profile click)
+let currentKm = 0;
+let positionMarker = null;
+const totalKmGlobal = DATA.track[DATA.track.length - 1].km;
+
+function findNearestTrackPoint(km) {
+  let best = DATA.track[0], bd = Infinity;
+  for (const p of DATA.track) {
+    const d = Math.abs(p.km - km);
+    if (d < bd) { bd = d; best = p; }
+  }
+  return best;
+}
+
+function findNearestPoi(km) {
+  let bestP = null, bestD = Infinity;
+  for (const poi of DATA.pois) {
+    const d = Math.abs(poi.km - km);
+    if (d < bestD) { bestD = d; bestP = poi; }
+  }
+  return { poi: bestP, distKm: bestD };
+}
+
+function updatePosition(km, panMap) {
+  km = Math.max(0, Math.min(km, totalKmGlobal));
+  currentKm = km;
+  const sample = findNearestTrackPoint(km);
+  const klass = classAtKm(km);
+  const clock = clockTimeAtKm(km);
+  const { poi, distKm } = findNearestPoi(km);
+
+  // Info panel
+  document.getElementById('info-km').textContent = km.toFixed(1) + ' km';
+  document.getElementById('info-alt').textContent = Math.round(sample.ele) + ' m';
+  const surfaceEl = document.getElementById('info-surface');
+  surfaceEl.textContent = klass;
+  surfaceEl.className = 'v ' + klass;
+  document.getElementById('info-clock').textContent = clock;
+  document.getElementById('info-poi').textContent = poi
+    ? `${poi.type} — ${poi.name || '-'} (km ${poi.km.toFixed(1)}, Δ ${(distKm * 1000).toFixed(0)} m)`
+    : '—';
+
+  // Profile cursor
+  if (svg._cursorLine && svg._xOf) {
+    const x = svg._xOf(km);
+    svg._cursorLine.setAttribute('x1', x);
+    svg._cursorLine.setAttribute('x2', x);
+  }
+
+  // Map marker (persistent, distinct from POI icons)
+  if (positionMarker) map.removeLayer(positionMarker);
+  positionMarker = L.marker([sample.lat, sample.lon], {
+    icon: L.divIcon({
+      className: 'position-marker',
+      html: '<div class="position-marker-inner"></div>',
+      iconSize: [20, 20],
+      iconAnchor: [10, 10],
+    }),
+    interactive: false,
+    keyboard: false,
+    zIndexOffset: 1000,
+  }).addTo(map);
+  if (panMap) {
+    map.panTo([sample.lat, sample.lon], { animate: true });
+  }
+
+  // Sync slider
+  const slider = document.getElementById('profile-slider');
+  if (slider && Math.abs(parseFloat(slider.value) - km) > 0.05) {
+    slider.value = km;
+  }
+}
+
+// Wire slider
+const slider = document.getElementById('profile-slider');
+slider.max = totalKmGlobal.toFixed(1);
+slider.addEventListener('input', e => updatePosition(parseFloat(e.target.value), false));
+slider.addEventListener('change', e => updatePosition(parseFloat(e.target.value), true));
+
+// Quick-jump buttons
+document.querySelectorAll('.slider-buttons button').forEach(btn => {
+  btn.addEventListener('click', () => updatePosition(parseFloat(btn.dataset.km), true));
+});
+
+// Keyboard arrows: 1 km / 10 km steps
+document.addEventListener('keydown', e => {
+  if (document.activeElement.tagName === 'INPUT' && document.activeElement.id !== 'profile-slider') return;
+  if (e.key === 'ArrowLeft') { updatePosition(currentKm - (e.shiftKey ? 10 : 1), true); e.preventDefault(); }
+  if (e.key === 'ArrowRight') { updatePosition(currentKm + (e.shiftKey ? 10 : 1), true); e.preventDefault(); }
+});
+
+// Initial position
+updatePosition(0, false);
 
 // --- POI table with filter
 function renderPois() {
