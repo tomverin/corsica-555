@@ -34,10 +34,21 @@ surface analysis.
 
 ## How the site was built
 
-Source GPX + POI + OSM analysis from the private training journal,
-processed with [`analyze_gpx_osm_surface.py`](https://github.com/) and
-[`build_corsica_site.py`](https://github.com/) (custom Python tools,
-stdlib only).
+Full build pipeline documented in [BUILD.md](BUILD.md). Source GPX +
+POI + OSM analysis are processed with two stdlib-only Python scripts:
+
+- [`scripts/analyze_gpx_osm_surface.py`](scripts/analyze_gpx_osm_surface.py)
+  — produces the structured terrain JSON (climbs, descents, aero,
+  surface sections) by cross-referencing the GPX with OSM via the
+  Overpass API.
+- [`scripts/build_corsica_site.py`](scripts/build_corsica_site.py) —
+  assembles the GPX, POIs, terrain JSON, and the 7 markdown docs into
+  a single self-contained `index.html` (~430 KB).
+
+Both scripts are mirrored here as point-in-time copies. The canonical
+versions live in the rider's private training-journal repo and evolve
+with the rest of the daily workflow. Fork-friendly: see BUILD.md for
+how to adapt the dashboard to another ultra route.
 
 ## License
 
