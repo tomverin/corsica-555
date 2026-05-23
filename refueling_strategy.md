@@ -3,6 +3,10 @@
 Generated from `555-gravel-poi.gpx`, `555_Corsica__2_2026_vfinale.gpx`,
 and `terrain_analysis.md` on 2026-05-08.
 
+Note: this is the locked Corsica race-specific plan. The season-wide cheaper
+training nutrition strategy lives in [`../nutrition.md`](../nutrition.md), but
+it should not change the Corsica setup without specific testing.
+
 Assumption: race carbohydrates are carried from the start as gels and drink
 powder. External resupply is therefore mainly for:
 

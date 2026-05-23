@@ -29,7 +29,7 @@ External dependencies (loaded from CDN at runtime, no install needed):
 - marked 12.0 — markdown rendering
 
 To deploy the result publicly to https://tomverin.github.io/corsica-555/
-use `scripts/deploy_corsica_site.sh` which builds, syncs to the public
+use `scripts/race/deploy_corsica_site.sh` which builds, syncs to the public
 repo, commits, and pushes.
 """
 
@@ -42,7 +42,9 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+from speed_model import grade_span_m, grade_speed
+
+ROOT = Path(__file__).resolve().parents[2]
 CORSICA = ROOT / "corsica-555-2026"
 TRACK_GPX = CORSICA / "555_Corsica__2_2026_vfinale.gpx"
 POI_GPX = CORSICA / "555-gravel-poi.gpx"
@@ -134,24 +136,6 @@ def parse_pois(path: Path) -> list[dict]:
     return [p for p in pois if p["km"] is not None and (p["dist_m"] is None or p["dist_m"] <= 200)]
 
 
-def grade_speed(grade_pct: float, offroad: bool) -> float:
-    """Same model as the refueling strategy (Race King, ~30 h target)."""
-    g = grade_pct
-    if offroad:
-        if g >= 6: return 7.0
-        if g >= 3: return 10.0
-        if g >= 1: return 14.0
-        if g >= -1: return 18.0
-        return 22.0
-    if g >= 6: return 9.0
-    if g >= 3: return 13.0
-    if g >= 1: return 19.0
-    if g >= -1: return 24.0
-    if g >= -3: return 29.0
-    if g >= -6: return 33.0
-    return 36.0
-
-
 def compute_passage_times(track: list[dict], sections: list[dict]) -> list[float]:
     """Cumulative moving hours at each track point given grade + surface."""
     n = len(track)
@@ -164,13 +148,14 @@ def compute_passage_times(track: list[dict], sections: list[dict]) -> list[float
                 return True
         return False
 
-    # Precompute smoothed grades over ~300 m windows
+    # Precompute smoothed grades over the shared model window.
+    half_span_m = grade_span_m() / 2
     grades = [0.0] * n
     for i in range(n):
         a, b = i, i
-        while a > 0 and (track[i]["km"] - track[a]["km"]) * 1000 < 150:
+        while a > 0 and (track[i]["km"] - track[a]["km"]) * 1000 < half_span_m:
             a -= 1
-        while b < n - 1 and (track[b]["km"] - track[i]["km"]) * 1000 < 150:
+        while b < n - 1 and (track[b]["km"] - track[i]["km"]) * 1000 < half_span_m:
             b += 1
         dx = (track[b]["km"] - track[a]["km"]) * 1000
         if dx > 1:
@@ -324,6 +309,16 @@ table tr:hover { background: var(--panel2); }
 .md-content p { margin: 12px 0; }
 .md-content ul, .md-content ol { padding-left: 24px; }
 .md-content li { margin: 4px 0; }
+.md-content ul.contains-task-list { list-style: none; padding-left: 0; }
+.md-content li.task-list-item { list-style: none; margin: 8px 0; padding-left: 0; display: flex; align-items: flex-start; gap: 10px; }
+.md-content li.task-list-item.checked { opacity: 0.58; }
+.md-content li.task-list-item.checked > p,
+.md-content li.task-list-item.checked { text-decoration: line-through; text-decoration-color: rgba(240, 136, 62, 0.75); }
+.md-content li.task-list-item input[type="checkbox"] {
+  width: 22px; height: 22px; margin: 2px 0 0 0; flex: 0 0 auto;
+  accent-color: var(--accent); cursor: pointer; touch-action: manipulation;
+}
+.md-content .checklist-progress { font-size: 12px; color: var(--muted); margin-left: 12px; font-weight: 600; }
 .md-content code { background: var(--panel2); padding: 2px 6px; border-radius: 3px; font-size: 12px; font-family: SF Mono, Menlo, Consolas, monospace; }
 .md-content pre { background: var(--panel2); border: 1px solid var(--border); border-radius: 4px; padding: 12px 16px; overflow-x: auto; }
 .md-content pre code { background: none; padding: 0; }
@@ -963,16 +958,55 @@ function clockTimeAtKm(km) {
 if (window.marked) {
   marked.setOptions({ gfm: true, breaks: false });
 }
+const CHECKLIST_STORAGE_PREFIX = 'c555-checklist-v1:';
+
+function wireChecklists(container, docFile) {
+  const boxes = container.querySelectorAll('input[type="checkbox"]');
+  if (!boxes.length) return;
+  const storageKey = CHECKLIST_STORAGE_PREFIX + docFile;
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem(storageKey) || '{}'); } catch (_) {}
+  boxes.forEach((cb, index) => {
+    cb.disabled = false;
+    const li = cb.closest('li');
+    const label = (li ? li.textContent : '').trim().slice(0, 160);
+    const id = index + ':' + label;
+    cb.checked = !!state[id];
+    if (li) li.classList.toggle('checked', cb.checked);
+    cb.addEventListener('change', () => {
+      state[id] = cb.checked;
+      localStorage.setItem(storageKey, JSON.stringify(state));
+      if (li) li.classList.toggle('checked', cb.checked);
+      updateChecklistProgress(container);
+    });
+  });
+  updateChecklistProgress(container);
+}
+
+function updateChecklistProgress(container) {
+  const boxes = container.querySelectorAll('input[type="checkbox"]');
+  if (!boxes.length) return;
+  const done = Array.from(boxes).filter(cb => cb.checked).length;
+  const header = document.getElementById('viewer-title');
+  if (!header) return;
+  const base = header.dataset.baseTitle || header.textContent.replace(/\\s+\\(\\d+\\/\\d+\\)$/, '');
+  header.dataset.baseTitle = base;
+  header.textContent = base + ' (' + done + '/' + boxes.length + ')';
+}
+
 function openDoc(filename) {
   const content = DATA.docs[filename];
   if (!content) return;
   const title = (DATA.docs_meta.find(d => d.file === filename) || {}).title || filename;
-  document.getElementById('viewer-title').textContent = title;
+  const header = document.getElementById('viewer-title');
+  header.textContent = title;
+  header.dataset.baseTitle = title;
   const rawLink = document.getElementById('viewer-raw');
   rawLink.href = filename;
   rawLink.style.display = '';
   const body = document.getElementById('viewer-body');
   body.innerHTML = window.marked ? marked.parse(content) : '<pre>' + content.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) + '</pre>';
+  wireChecklists(body, filename);
   // Intercept internal MD links to switch viewer instead of leaving the page
   body.querySelectorAll('a').forEach(a => {
     const href = a.getAttribute('href') || '';
@@ -999,11 +1033,13 @@ document.querySelectorAll('.docs-sidebar .doc-link').forEach(el => {
     document.querySelector('.docs-viewer').scrollTop = 0;
   });
 });
-// Open the first doc by default when the user lands on the Documents tab
+// Open checklist by default when the user lands on the Documents tab
 let docsOpened = false;
+const DEFAULT_DOC = DATA.docs['personal-checklist.md'] ? 'personal-checklist.md'
+  : (DATA.docs['checklist.md'] ? 'checklist.md' : (DATA.docs_meta[0] && DATA.docs_meta[0].file));
 document.querySelector('nav.tabs button[data-tab="docs"]').addEventListener('click', () => {
-  if (!docsOpened && DATA.docs_meta.length) {
-    openDoc(DATA.docs_meta[0].file);
+  if (!docsOpened && DEFAULT_DOC) {
+    openDoc(DEFAULT_DOC);
     docsOpened = true;
   }
 });
@@ -1231,7 +1267,7 @@ def load_docs() -> tuple[dict, list[tuple[str, str, str]]]:
     return embed, available
 
 
-def build():
+def build(out_html: Path = OUT_HTML):
     track = parse_track(TRACK_GPX)
     track_full = track
     track_down = downsample(track, target=3000)
@@ -1278,9 +1314,9 @@ def build():
     html_out = html_out.replace("__DOCS_SIDEBAR__", render_docs_sidebar(docs_available))
     html_out = html_out.replace("__DATA_JSON__", json.dumps(data, ensure_ascii=False))
 
-    OUT_HTML.parent.mkdir(parents=True, exist_ok=True)
-    OUT_HTML.write_text(html_out, encoding="utf-8")
-    print(f"Wrote {OUT_HTML} ({OUT_HTML.stat().st_size // 1024} KB)")
+    out_html.parent.mkdir(parents=True, exist_ok=True)
+    out_html.write_text(html_out, encoding="utf-8")
+    print(f"Wrote {out_html} ({out_html.stat().st_size // 1024} KB)")
 
 
 if __name__ == "__main__":

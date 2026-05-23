@@ -3,30 +3,37 @@
 Generated 2026-05-11 from BRM 400, Morocco 2024 and Graaalps DNF data,
 plus `terrain_analysis.md`.
 
+Updated 2026-05-15 with the race-site terrain-aware pacing model
+(`corsica_555_race_king_30h`) and the current carried nutrition plan.
+
 ## TL;DR
 
 - **Départ**: vendredi 29 mai 07:00, Porto-Vecchio
-- **Vitesse roulée cible**: **16-17.5 km/h** selon scénario (cf Plan A et Alternative B ci-dessous)
-- **Vitesse globale**: 13-14.5 km/h (arrêts + sommeil inclus)
-- **Temps total prévu**: **~34 h** (range réaliste 33-37 h)
-- **Arrivée cible**: **samedi 30 mai entre 16h et 19h**, Biguglia
+- **Pacing site race**: modèle terrain-aware Race King, **28h58 roulées**
+  théoriques + **1h15 arrêts lean** = arrivée ~**samedi 13h10** si `r=1.00`.
+- **Scénario mental par défaut**: `r_global ≈ 0.90` = arrivée
+  ~**samedi 16h25** avec les mêmes arrêts lean. C'est le bon scénario robuste.
+- **Scénario dégradé acceptable**: 36-37 h = arrivée samedi soir, toujours large
+  vs cutoff.
+- **Nutrition embarquée**: 11 sachets × 90 g + 17 gels × 45 g =
+  **1 755 g glucides**, soit **29h15 à 60 g/h**. Solide route = marge, sel,
+  texture, moral.
 - **Cutoff officiel**: 60 h (marge ~24-26 h)
 
 Marges:
-- Scénario clean (rien ne casse, sommeil bon, gravel sec): 31-32 h → arrivée sam 14-15h
-- Scénario réaliste data-calibré: 34 h → arrivée sam ~17h
-- Scénario épaule réagit / météo dégradée: 36-37 h → arrivée sam 19-20h
+- Scénario clean, sans sommeil planifié, arrêts tenus: 30-31 h → arrivée sam
+  13-14h.
+- Scénario robuste data-calibré / `r_global ~0.90`: 33-34 h → arrivée sam
+  16-17h.
+- Scénario épaule réagit / météo dégradée: 36-37 h → arrivée sam 19-20h.
 
-Lecture tactique (le scénario probable, calibré sur Morocco 2024):
-- **Plan A roadbook**: 17.5 km/h roulé, vraie pause sommeil 2-3 h, arrivée
-  autour de 34 h. Atteignable si tout glisse bien.
-- **Alternative B**: 15.8-16.3 km/h roulé, sommeil court/opportuniste
-  uniquement si besoin, arrivée autour de 34-35 h. **C'est le scénario le plus
-  probable d'après l'application des vitesses Morocco par grade à la grade
-  distribution Corse** (voir section "Morocco calibration").
-- Le choix entre A et B se fait en course selon lucidité, épaule, sommeil et
-  fluidité des arrêts. Ne pas forcer le Plan A si la vitesse roulée naturelle
-  est plus proche de 16 km/h.
+Lecture tactique:
+- **Mode site race 30h**: possible si tout est propre: sec, lucidité haute,
+  épaule/nuque calmes, aucune dérive gastrique. Ne pas le chasser à la pédale.
+- **Mode par défaut `r=0.90`**: rouler régulier, arrêts efficaces, sommeil court
+  seulement si le signal qualité baisse. C'est le scénario à piloter.
+- **Mode sécurité**: si erreurs de ligne, somnolence, épaule/nuque qui montent
+  ou pluie sur Sequence C, accepter 36-37 h. Le cutoff n'est pas le problème.
 
 ## Course Summary
 
@@ -42,33 +49,43 @@ Lecture tactique (le scénario probable, calibré sur Morocco 2024):
 
 ## Timeline cible par km
 
-Heure de race = temps écoulé depuis 07:00 vendredi 29 mai.
+Heures depuis un départ vendredi 29 mai à 07:00. La colonne `site 30h` utilise
+le modèle de l'app race avec les arrêts lean intégrés. La colonne `r=0.90`
+applique le même modèle avec un rythme réel 10 % plus lent, ce qui est le
+scénario mental par défaut.
 
-| Km | Étape | h race | Heure horloge | Notes opérationnelles |
-|---:|---|---:|---|---|
-| 0 | Départ Porto-Vecchio | h0:00 | Ven 07:00 | Pack. Petit-déj 5h45-6h00 (500 ml glucidique + banane + café). |
-| 17 | Début Sequence A — gravel précoce | h1:00 | Ven 08:00 | Manger AVANT entrée. Assis, contained, RPE 4. |
-| 42 | Fin Sequence A | h2:50 | Ven 09:50 | 30 km en 2h50 = 10.6 km/h sur ce bloc rough. |
-| 95 | Top 1ère paved climb majeure | h6:30 | Ven 13:30 | Chaleur attendue, hydratation strict 600 ml/h. |
-| 109 | Fin grande descente paved (-6.5%) | h7:30 | Ven 14:30 | Une des 2 vraies descentes "let bike run". |
-| 137 | Entrée Sequence B — long suspect track | h11:00 | Ven 18:00 | Climb postural endurance, cadence relax. |
-| 146 | Top track 1 276 m | h12:30 | Ven 19:30 | Première grosse altitude. |
-| **164** | **CP1 Ghisoni** | **h13:00** | **Ven 20:00** | **Recharge complète: eau, sel, solide. Couches up.** |
-| 174 | High point 1 300 m | h14:30 | Ven 21:30 | Nuit installée. Vêtements chauds. |
-| 180 | Surface change rough en descente | h15:00 | Ven 22:00 | Anticiper km 178-180. Cocottes, freinage tôt. |
-| 209 | Fin grande descente paved (-5%, 14 km) | h16:30 | Ven 23:30 | Récupération posture. |
-| 251 | Top 2e altitude block 1 070 m | h19:30 | Sam 02:30 | Nuit profonde. Vigilance. |
-| ~270 | **Micro-sommeil 2-3 h** | h21:00-23:00 | Sam 04:00-07:00 | Quelque part avant CP2. Repère eau/abri. |
-| 313 | Sequence rough courte | h24:30 | Sam 07:30 | Réveil, jambes raides. Cocottes. |
-| **333** | **CP2 Crocicchia** | **h25:30** | **Sam 08:30** | **Reset complet: petit-déj sérieux, 15 min minimum, check épaule.** |
-| 389 | Entrée late mixed track corridor | h28:30 | Sam 11:30 | Manger AVANT. 13 km rough rolling. |
-| 419 | Fin rough -8.7% (km 417-419) | h30:30 | Sam 13:30 | Speed cap absolu. Walk OK si dégradé. |
-| **433** | **Entrée Sequence C** | **h31:30** | **Sam 14:30** | **POINT DE RESET CRITIQUE. Manger, boire, posture, mental.** |
-| 440 | Début gravel climb 8% | h32:00 | Sam 15:00 | Le climb le plus engageant de la course. |
-| 447 | Top 955 m | h32:30 | Sam 15:30 | 7.7 km à 8% gravel. Walking subsections valide. |
-| 455 | Fin descente gravel -8.9% | h33:00 | Sam 16:00 | Le gros est passé. |
-| 462 | Fin Sequence C | h33:15 | Sam 16:15 | Retour mer. ~25 km roulant low altitude. |
-| **487** | **Arrivée Biguglia** | **h34:00** | **Sam 17:00** | Finish. |
+| Km | Étape | Site 30h | r=0.90 | Notes opérationnelles |
+|---:|---|---|---|---|
+| 0 | Départ Porto-Vecchio | Ven 07:00 | Ven 07:00 | Petit-déj 5h45-6h00: 500 ml glucidique + banane + café. |
+| 17 | Début Sequence A — gravel précoce | Ven 08:02 | Ven 08:09 | Manger AVANT entrée. Assis, contained, RPE 4. |
+| 31.9 | Premier water check | Ven 09:14 | Ven 09:29 | Refill si un bidon <60 %. |
+| 42 | Fin Sequence A | Ven 10:12 | Ven 10:34 | Premier vrai point de contrôle du pacing rough. |
+| 59.6 | Zonza — ravito optionnel | Ven 11:07 | Ven 11:34 | Tout est probablement ouvert. Stop seulement si chaleur, faim ou bidons bas. |
+| **78** | **Serra — stop solide clé** | **Ven 12:20** | **Ven 12:55** | Proxi probablement fermé à midi; viser A Scopa / point chaud. Vrai salé + backup. |
+| 95 | Top 1ère paved climb majeure | Ven 13:23 | Ven 14:05 | Chaleur attendue, hydratation stricte. |
+| 132.3 | Eau avant track km 136-147 | Ven 15:32 | Ven 16:28 | Plein avant long suspect track. |
+| 137 | Entrée Sequence B — long suspect track | Ven 15:52 | Ven 16:49 | Climb postural endurance, cadence relax. |
+| 146 | Top track 1 276 m | Ven 16:46 | Ven 17:50 | Première grosse altitude. Rester calme en descente. |
+| **164** | **CP1 Ghisoni — ravito nuit** | **Ven 17:48** | **Ven 18:56** | **Stop obligatoire: eau, sel, vrai solide, 2 solides de nuit, couches up.** |
+| 174 | High point 1 300 m | Ven 18:48 | Ven 20:03 | Nuit proche/installée selon scénario. |
+| 182.2 | Le Chalet — bonus fragile | Ven 19:08 | Ven 20:25 | Ferme probablement à 19h. Ne pas compter dessus. |
+| 200.5 | Eau avant gap nuit | Ven 20:15 | Ven 21:39 | Plein complet avant ~50 km. |
+| 251 | Top 2e altitude block | Ven 23:20 | Sam 01:04 | Nuit profonde. Caffeine si vraie somnolence. |
+| 305.5 | Convenience/water bonus | Sam 02:18 | Sam 04:22 | Solide incertain; traiter comme eau/reset. |
+| 313 | Sequence rough courte | Sam 02:50 | Sam 04:58 | Cocottes, vitesse plafonnée. |
+| **333.4** | **CP2 Crocicchia — reset** | **Sam 04:05** | **Sam 06:20** | **Base vie 24h: café, petit-déj simple, 15 min mini, check épaule/nuque.** |
+| 337.8 | Fontaine CP2 area | Sam 04:20 | Sam 06:37 | Dernier vrai plein avant long gap. |
+| 377.8 | Boulangerie/alimentation | Sam 06:34 | Sam 09:06 | Si rapide: trop tôt. Si `r=0.90`: très bon ravito solide. |
+| 387.9 | Eau avant mixed track | Sam 07:08 | Sam 09:42 | Plein juste avant km 389-411. |
+| 389 | Entrée late mixed track corridor | Sam 07:11 | Sam 09:45 | Manger AVANT. 13 km rough rolling. |
+| 419 | Fin rough -8.7 % | Sam 08:55 | Sam 11:41 | Speed cap absolu. Walk OK si dégradé. |
+| **428.5** | **Nonza — A Matsuletta** | **Sam 09:29** | **Sam 12:18** | **Stop clé final: salé léger + Coca/café + eau avant Sequence C.** |
+| **433.3** | **Last fuel pre-Sequence C** | **Sam 09:55** | **Sam 12:46** | Convenience ouverte dans les deux scénarios. Dernier reset mental. |
+| 440.1 | Début gravel climb 8 % | Sam 10:30 | Sam 13:25 | Le climb le plus engageant de la course. |
+| 447 | Top 955 m | Sam 11:24 | Sam 14:26 | Walking subsections valide si surface/épaule dégradées. |
+| 455 | Fin descente gravel | Sam 11:49 | Sam 14:53 | Le gros technique est passé. |
+| 462.5 | Urban resupply starts | Sam 12:04 | Sam 15:10 | Urgence seulement. Un stop max dans l'urbain. |
+| **487.1** | **Arrivée Biguglia** | **Sam 13:12** | **Sam 16:25** | Finish. |
 
 ## Pace par type de segment
 
@@ -85,8 +102,8 @@ Vitesses cibles raffinées avec les données Morocco 2024 (cf section
 | Downhill -3 à -6% | 91 km | 29-31 km/h | Morocco: 30.1 km/h |
 | Steep downhill ≤-6% | 39 km | 35-42 km/h | Morocco: 40.6 km/h, prudence cocottes |
 | Gravel sections | 72 km | 10-13 km/h | Cocottes systématiques, Sequence C plus lent |
-| **Moyenne mouvement réaliste** | 487 km | **16.0-16.5 km/h** | Plan B data-calibré |
-| **Moyenne mouvement optimiste** | 487 km | **17.5 km/h** | Plan A si conditions parfaites |
+| **Moyenne mouvement robuste** | 487 km | **16.0-16.5 km/h** | Référence Morocco conservatrice |
+| **Moyenne mouvement optimiste** | 487 km | **17.5 km/h** | Conditions parfaites / très peu d'arrêts |
 
 ## Morocco calibration — application des vitesses observées à Corse
 
@@ -107,12 +124,13 @@ Application directe des speeds Morocco à la grade distribution Corse:
 | ≥ +6% | 43 | 8.0 km/h | 5h22 |
 | **Total paved-equivalent** | **487** | | **27h23** → **17.8 km/h** |
 
-Si Corse était 100% paved comme Morocco, le moving avg serait 17.8 km/h
-(= Plan A). Mais Corse a 72 km de gravel **concentré** (vs Morocco étalé),
+Si Corse était 100% paved comme Morocco, le moving avg serait 17.8 km/h.
+Mais Corse a 72 km de gravel **concentré** (vs Morocco étalé),
 notamment 14 km à grade extrême sur Sequence C.
 
 Pénalité gravel estimée: +2-3 h sur le moving time → moving avg réaliste
-**16.0-16.5 km/h**, soit le **scénario Alternative B**.
+**16.0-16.5 km/h**. Le site race affine ensuite cette référence avec le
+modèle terrain-aware + `r_global`.
 
 Validation croisée — ce que Morocco confirme:
 - 913 km / 61h45 / 2 nuits finis = moteur ultra confirmé
@@ -122,54 +140,58 @@ Validation croisée — ce que Morocco confirme:
 - 20h09 non-moving sur 913 km = ratio standard ultra (~32%). Sur Corse
   comprimée, viser plutôt 18-22% non-moving (6-7 h sur 33-35 h total).
 
-## Budget temps détaillé — Plan A roadbook
+## Budget temps — modèle site race
 
-| Poste | Temps |
-|---|---:|
-| Temps roulé (487 km @ 17.5 km/h) | 27h50 |
-| Arrêts CP1 + CP2 (~20 min chacun) | 0h40 |
-| Ravitos eau / nourriture (~5 stops x 10 min) | 0h50 |
-| Ajustements posture / mécanique (cumul) | 1h00 |
-| Repas long (1 vraie pause repas) | 0h30 |
-| **Sommeil** (1 micro-sommeil) | 2h30 |
-| Imprévus / buffer | 0h40 |
-| **TOTAL** | **34h00** |
+Le site race n'est pas un plan à forcer: c'est le modèle de référence que
+l'app adaptera avec `r_global`. Le modèle statique donne:
 
-## Alternative B — moyenne roulée plus basse, sommeil opportuniste
+| Poste | Site 30h (`r=1.00`) | Robuste (`r=0.90`) |
+|---|---:|---:|
+| Temps roulé terrain-aware | 28h58 | 32h11 |
+| Arrêts lean intégrés | 1h15 | 1h15 |
+| Sommeil planifié | 0h00 | 0h00 |
+| **Total projeté** | **30h12** | **33h25** |
+| **Arrivée** | **Sam ~13h10** | **Sam ~16h25** |
 
-Cette option conserve une arrivée autour de 34-35 h, mais au lieu de compter
-sur 17.5 km/h roulé puis un vrai bloc sommeil, elle accepte une vitesse roulée
-plus réaliste et compense par des arrêts plus courts.
+Arrêts lean du modèle:
 
-| Poste | Temps |
-|---|---:|
-| Temps roulé (487 km @ 15.8-16.3 km/h) | 29h55-30h50 |
-| Arrêts CP1 + CP2 efficaces | 0h35-0h45 |
-| Ravitos eau / nourriture | 0h45-1h00 |
-| Ajustements posture / mécanique | 0h40-0h50 |
-| Repas / reset long | 0h20-0h30 |
-| **Sommeil opportuniste** | **0h00-0h45** |
-| Imprévus / buffer | 0h30-0h45 |
-| **TOTAL** | **33h45-35h25** |
+| Km | Durée | Fonction |
+|---:|---:|---|
+| 60 | 6 min | Stop optionnel eau/café après Sequence A. |
+| 110 | 9 min | Ajustement / eau après premier gros bloc. |
+| 164 | 18 min | CP1, ravito nuit, couches. |
+| 200 | 3 min | Eau avant gap nocturne. |
+| 333 | 18 min | CP2, petit-déj/reset. |
+| 385 | 9 min | Ravito solide si ouvert. |
+| 433 | 12 min | Dernier reset avant Sequence C. |
 
 Utilisation:
-- Si tu roules naturellement à ~16 km/h sans surconsommer mentalement, rester
-  sur cette alternative plutôt que chasser 17.5 km/h.
-- Micro-sommeil seulement si baisse de lucidité, erreurs de pilotage,
-  somnolence en descente, ou incapacité à manger correctement.
-- Si l'épaule est stable et la tête claire, privilégier arrêts courts +
-  progression régulière.
+- Si `r_global` reste proche de 1.00: ne pas ajouter d'arrêt inutile. Les
+  commerces trop tôt fermés le matin ne valent pas une attente.
+- Si `r_global` glisse vers 0.90: c'est normal et probablement optimal. Les
+  ravitos de 377-385 deviennent utilisables, ce qui compense le rythme plus
+  bas.
+- Si sommeil ou météo ajoute 1-3 h: rester propre. Le vrai objectif est
+  jugement + épaule/nuque + alimentation, pas l'heure d'arrivée.
 
 ## Indicateurs de validation en course
 
 Cocher mentalement vs le plan — si en retard ne PAS compenser par accélération:
 
-- ☐ **Km 164 (CP1) atteint avant Ven 20:30** = on plan
-- ☐ **Km 333 (CP2) atteint avant Sam 10:00** (après sommeil) = on plan
-- ☐ **Km 440 atteint avant Sam 16:00** = lumière du jour garantie sur Sequence C
-- ☐ **Km 487 (arrivée) avant Sam 20:00** = scénario worst-case acceptable
+- ☐ **Km 164 (CP1) vers Ven 18:00-19:00** = scénario robuste parfaitement on plan.
+- ☐ **Km 333 (CP2) vers Sam 04:00-06:30** = excellent, même sans sommeil.
+- ☐ **Km 440 vers Sam 10:30-13:30** = Sequence C largement en journée.
+- ☐ **Km 487 (arrivée) vers Sam 13:00-16:30** = fenêtre site/r=0.90.
 
-Si retard >2h sur CP1: garder le rythme, ne pas forcer. Le temps total montera de 2-3h, pas plus, sauf abandon.
+Garde-fous conservateurs:
+
+- CP1 après Ven 20:30 = scénario lent, mais pas grave. Ne pas forcer.
+- CP2 après Sam 10:00 = accepter 36-37 h si besoin, protéger Sequence C.
+- Km 440 avant Sam 16:00 = lumière du jour encore garantie sur le gros final.
+- Arrivée avant Sam 20:00 = scénario worst-case toujours acceptable.
+
+Si retard >2 h sur CP1: garder le rythme. Le temps total montera de 2-3 h,
+pas plus, sauf vrai problème mécanique/corporel.
 
 ## Triggers de décision épaule (apprentissage Graaalps)
 
@@ -186,16 +208,18 @@ DNF est une décision valide, pas un échec. À se rappeler en état dégradé.
 
 ## Décisions critiques en course
 
-**Sommeil — Plan A** — micro-sommeil 2-3h prévu vers km 270 (samedi 04-07h):
-- Option A: avant CP2 (vers km 270, dormir 04h-07h, arriver CP2 frais)
-- Option B: après CP2 (dormir post-petit-déj CP2, départ ~12h)
-- Choix selon état à l'arrivée à km 270. Par défaut: option A.
+**Sommeil — défaut site race**: aucun sommeil planifié. Le modèle part du
+principe que les arrêts sont courts et que le sommeil n'est déclenché que par
+le signal qualité.
 
-**Sommeil — Alternative B** — sommeil court et opportuniste:
+**Sommeil opportuniste**:
 - 10-20 min si somnolence légère ou baisse de vigilance.
 - 30-45 min si vraie dette de lucidité, micro-erreurs, ou besoin de reset
   épaule/nuque.
 - Pas de sommeil imposé si tu es lucide, alimenté, et mécaniquement stable.
+- Vrai bloc 2-3 h uniquement si continuer devient unsafe: dérive de trajectoire,
+  erreurs de ligne sur terrain facile, incapacité à manger, ou épaule/nuque qui
+  demande un arrêt long.
 
 **Météo Sequence C** (km 440-455) — vérifier la veille du départ:
 - Sec: gravel à -8.9% OK avec speed cap
@@ -207,15 +231,95 @@ DNF est une décision valide, pas un échec. À se rappeler en état dégradé.
 - Rotation position toutes les 20-30 min sur asphalte (alarme Wahoo)
 - Cocottes par défaut sur toute section rough listée. Jamais drops sur track.
 
+## Race week — taper J-12 à J-0
+
+Calé sur les références Corse 2024 (finished, Form race-day +29 = trop frais, 4-5h démarrage difficile), Morocco 2024 (finished, Form +20 = bien dès le départ — modèle visé) et BRM 400 (finished, Form +11). **Cible Form race-day +18-22**, HRV 65-75, RHR ≤ 42.
+
+| Jour | Date | Activité | Heat | Load |
+|---|---|---|---|---:|
+| J-12 | Dim 17/05 | 3h gravel 250W bosses (fait) | — | 145 |
+| J-11 | Lun 18/05 | Recovery + mobility | — | 5-15 |
+| J-10 | Mar 19/05 | Heat 45-50' + run easy 6-7 km | Heat (HT) | 50-70 |
+| J-9 | Mer 20/05 | SST taper 2x20 ou 3x12-15 | — | 80-100 |
+| J-8 | Jeu 21/05 | Run easy 6-8 km ou mobilité | — | 40-60 |
+| J-7 | Ven 22/05 | Heat 40-45' ou endurance facile | Heat (HT) | 30-50 |
+| J-6 | Sam 23/05 | Ride 2h30-3h "répétition générale" matin **+ sauna 15-20' aprem** | Sauna passive | 100-150 |
+| J-5 | Dim 24/05 | Recovery 45-75' ou repos | — | 0-30 |
+| **J-4** | **Lun 25/05** | Travel Corse + **vélo 30-45' Z2 aprem** | Soleil naturel | 30-50 |
+| **J-3** | **Mar 26/05** | **Drive recon Sequence C** (1-1h30 RT) + **ride 75-90' final 25 km du parcours** depuis Biguglia + 3 openers 30" | Soleil naturel aprem | 60-80 |
+| **J-2** | **Mer 27/05** | **Openers matin 30-40' (5x1' @ 350-380W)** + repos aprem (option marche 30' soleil) | Soleil léger | 50-70 |
+| **J-1** | **Jeu 28/05** | Spin 20-30' easy + 3-4 sprints 10" + repos. Repas tôt, hydratation/sodium, dodo tôt. | — | 5-15 |
+| **J-0** | **Ven 29/05** | **RACE Corsica 555 — départ 07:00 Porto-Vecchio** | Race | 1 500+ |
+
+### Stratégie heat retention (sans HT/bain disponibles)
+
+Bloc heat fait 11-17/05. Race day = J+12 depuis fin bloc. Fenêtre d'effet ~7-14 jours, donc en limite haute. **Retention assurée par**:
+- **22/05 (J-7)**: dernière séance heat sur HT à domicile
+- **23/05 (J-6)**: **sauna 15-20' à 80-90°C** après la sortie matin. Top up passif (Zurawlew et al.). Hydratation post stricte 500-700 ml + sel. Pas de douche froide post (annule l'effet plasmatique).
+- **25-27/05 (J-4 à J-2)**: exposition naturelle soleil corse (rides aprem). Modéré mais cumulé sur 3 jours.
+
+Pas de HT, pas de bain chaud disponible sur place — accepté. Concentration de l'effort retention sur **un seul shot bien placé** (sauna 23/05), reste en naturel.
+
+### Pattern slow-start race-day
+
+Données: 2024 Corse trop frais (+29) = pas bien 4-5h de course. Morocco (+20) = bien dès le départ. **Tu es slow-starter à fortiori si trop reposé.**
+
+Implication mentale pour 29/05:
+- **Heures 0-4**: probablement sensations "ordinaires". **Ne PAS paniquer.** Ne pas attendre l'élan magique. Le moteur ne se juge pas avant CP1 (km 164, h12-13).
+- Heures 4-14: ouverture progressive.
+- Heures 14-25: vrai régime, après la nuit.
+- Heures 25-34: gestion fatigue posturale, Sequence C.
+
+### Petit-déj race-day — testé et verrouillé
+
+Format validé sur la 3h gravel du 17/05 (250W bosses, "bonnes sensations", pas de démarrage dur):
+- **6h00 (60 min avant départ)**: **thé + 2 tartines beurre d'amande + 1 pancake**
+- **7h00**: départ
+- **7h15**: **premier gel** (15 min de course)
+- Ensuite cible 60 g CHO/h selon refueling_strategy.md
+
+### Logistique Corse (J-4 à J-0)
+
+- **Hébergement**: site d'arrivée Biguglia.
+- **J-3 recon Sequence C**: déplacement voiture nécessaire au point de départ de la reco (km ~430-440), retour idem. ~25-30 km depuis Biguglia.
+- **J-3 ride aprem**: 75-90' depuis Biguglia sur les derniers 25 km du parcours en sens inverse (familiarisation portion finale).
+
 ## Nutrition / hydratation rappel
 
 Cible carbs: **60 g/h en roulant** (calibrée post-incident gut BRM 400 à 90 g/h).
-Portage: **~32 h de fuel maîtrisé** = 16 Nduranz + 32 doses poudre, complété
-par solide/commerces pour sel, texture et moral.
+Portage actuel: **11 sachets × 90 g + 17 gels × 45 g = 1 755 g glucides**,
+soit **29h15 à 60 g/h**.
+
+Lecture pratique:
+- Le fuel embarqué couvre quasiment exactement le modèle site race:
+  28h58 roulées théoriques → ~1 738 g à 60 g/h.
+- En scénario `r=0.90`, le solide route doit fournir la marge glucidique,
+  mais surtout le sel, la texture, le confort gastrique et le moral.
+- Ne pas utiliser les commerces comme source principale de glucides rapides:
+  gels/poudre restent la base contrôlée.
+
 Cible fluides: **500-750 ml/h**, plus si chaud.
 Sodium: sel de régime ajouté aux bidons selon sueur.
 
-Détail dans [refueling_strategy.md](refueling_strategy.md).
+### Ravito solide prioritaire
+
+| Km | Statut | Passage attendu | Action |
+|---:|---|---|---|
+| 59.6 Zonza | Optionnel | Ven 11:07-11:34 | Tout est ouvert. Stop seulement si chaleur, faim ou bidons bas. |
+| **78 Serra** | **Stop clé 1** | Ven 12:20-12:55 | Proxi fermé à midi; viser A Scopa / point chaud. Manger 1 salé et embarquer 1 backup. |
+| **164 CP1 Ghisoni** | **Stop obligatoire** | Ven 17:48-18:56 | Base vie + Da beie e da manghjà. Eau/sel, vrai solide, café si utile, **2 solides de nuit**. |
+| 182 Le Chalet | Bonus fragile | Ven 19:08-20:25 | Probablement fermé. Ne pas compter dessus. |
+| 305.5 | Bonus incertain | Sam 02:18-04:22 | Traiter comme eau/reset, pas comme ravito solide. |
+| **333 CP2** | **Stop obligatoire** | Sam 04:05-06:20 | Base vie 24h. Petit-déj simple, café, check épaule/nuque. |
+| 377-385 | Opportunité rythme-dépendante | Sam 06:34-09:42 | Si rapide, trop tôt. Si `r=0.90`, très bon stop solide avant late rough. |
+| **428-433 Nonza** | **Stop clé 3** | Sam 09:29-12:46 | A Matsuletta + convenience. Salé léger, Coca/café, plein eau avant Sequence C. |
+| 462+ urbain | Urgence seulement | Sam 12:04-15:10 | Un stop max si vide: Coca froid + eau + snack, puis finish. |
+
+Règle simple: **CP1 sécurise jusqu'à CP2; Nonza sécurise le final technique.**
+Le km 377-385 est un bonus selon l'heure, pas un pilier.
+
+Complément général dans [refueling_strategy.md](refueling_strategy.md), mais le
+portage actuel et les fenêtres de ravito ci-dessus font foi pour la course.
 
 ## Références
 

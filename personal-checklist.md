@@ -147,6 +147,8 @@ Objectif: couvrir chaleur, pluie, nuit fraîche en montagne et longues descentes
 ## Nutrition À Emporter
 
 Principe Corsica: glucides principaux portés depuis le départ, commerces = eau / salé / moral.
+La stratégie économique hors course est dans [`../nutrition.md`](../nutrition.md);
+elle ne remplace pas ce plan spécifique Corsica.
 
 - [ ] Plan nutrition écrit par blocs.
 - [ ] Objectif glucides course défini: ~32 h de fuel porté, pas 34 h pleines.
