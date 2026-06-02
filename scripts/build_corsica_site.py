@@ -66,6 +66,8 @@ DOCS = [
      "Synthesis of the official BikingMan briefing."),
     ("roadbook.md", "Roadbook",
      "Compact roadbook for race-day reference."),
+    ("comparison-analysis.md", "Analyse comparative",
+     "Comparaison post-course vs les concurrents 2e-6e (pauses, rythme, divergences). Voir aussi l'onglet Flyby."),
 ]
 
 NS = "{http://www.topografix.com/GPX/1/1}"
@@ -309,16 +311,6 @@ table tr:hover { background: var(--panel2); }
 .md-content p { margin: 12px 0; }
 .md-content ul, .md-content ol { padding-left: 24px; }
 .md-content li { margin: 4px 0; }
-.md-content ul.contains-task-list { list-style: none; padding-left: 0; }
-.md-content li.task-list-item { list-style: none; margin: 8px 0; padding-left: 0; display: flex; align-items: flex-start; gap: 10px; }
-.md-content li.task-list-item.checked { opacity: 0.58; }
-.md-content li.task-list-item.checked > p,
-.md-content li.task-list-item.checked { text-decoration: line-through; text-decoration-color: rgba(240, 136, 62, 0.75); }
-.md-content li.task-list-item input[type="checkbox"] {
-  width: 22px; height: 22px; margin: 2px 0 0 0; flex: 0 0 auto;
-  accent-color: var(--accent); cursor: pointer; touch-action: manipulation;
-}
-.md-content .checklist-progress { font-size: 12px; color: var(--muted); margin-left: 12px; font-weight: 600; }
 .md-content code { background: var(--panel2); padding: 2px 6px; border-radius: 3px; font-size: 12px; font-family: SF Mono, Menlo, Consolas, monospace; }
 .md-content pre { background: var(--panel2); border: 1px solid var(--border); border-radius: 4px; padding: 12px 16px; overflow-x: auto; }
 .md-content pre code { background: none; padding: 0; }
@@ -405,6 +397,21 @@ table tr:hover { background: var(--panel2); }
   padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;
 }
 .slider-buttons button:hover { border-color: var(--accent); }
+#flyby-map { height: 55vh; min-height: 360px; border-radius: 6px; border: 1px solid var(--border); }
+.flyby-legend { margin-top: 12px; display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; }
+.flyby-legend span { display: inline-flex; align-items: center; gap: 6px; color: var(--text); }
+.flyby-legend .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--bg); display: inline-block; }
+.flyby-legend .done { opacity: 0.5; }
+.flyby-controls { display: flex; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+.flyby-controls button { background: var(--panel2); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+.flyby-controls #flyby-play { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 600; min-width: 90px; }
+.flyby-controls #flyby-slider { flex: 1; min-width: 200px; }
+.flyby-clock { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 64px; }
+.flyby-speed { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 4px; }
+.flyby-speed .fb-speed { padding: 4px 8px; font-size: 12px; }
+.flyby-speed .fb-speed.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+#gap-chart { width: 100%; height: 300px; display: block; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; }
+.gap-tooltip { position: absolute; pointer-events: none; background: rgba(0,0,0,0.85); color: #fff; padding: 6px 10px; border-radius: 4px; font-size: 12px; display: none; z-index: 10; }
 </style>
 </head>
 <body>
@@ -421,6 +428,7 @@ table tr:hover { background: var(--panel2); }
   <button data-tab="unpaved">Off-road</button>
   <button data-tab="risks">Risk Sectors</button>
   <button data-tab="pois">POI / Fueling</button>
+  <button data-tab="flyby">Flyby</button>
   <button data-tab="docs">Documents</button>
 </nav>
 <section class="tab active" id="tab-overview">
@@ -525,6 +533,35 @@ table tr:hover { background: var(--panel2); }
     </table>
   </div>
 </section>
+<section class="tab" id="tab-flyby">
+  <p style="color: var(--muted)">Flyby type Strava : 6 coureurs synchronisés sur le <strong>temps écoulé depuis le départ</strong> (départ groupé). Moi = 7e au scratch, comparé aux 2e-6e. Lecture : qui prend l'avantage, où, et combien mes arrêts m'ont coûté.</p>
+  <div id="flyby-map"></div>
+  <div id="flyby-legend" class="flyby-legend"></div>
+  <div class="flyby-controls">
+    <button id="flyby-play">▶ Play</button>
+    <input type="range" id="flyby-slider" min="0" max="100" step="1" value="0" />
+    <span id="flyby-clock" class="flyby-clock">0h00</span>
+    <span class="flyby-speed">
+      Vitesse :
+      <button class="fb-speed" data-mult="60">×60</button>
+      <button class="fb-speed active" data-mult="300">×300</button>
+      <button class="fb-speed" data-mult="900">×900</button>
+    </span>
+  </div>
+  <h3 style="margin-top:24px">Écart de temps vs moi, par distance</h3>
+  <p style="color: var(--muted); font-size:12px">Sous l'axe = le coureur est <strong>devant moi</strong> (a atteint ce km plus vite). Au-dessus = derrière. En minutes.</p>
+  <div id="gap-wrap" style="position: relative;">
+    <svg id="gap-chart" preserveAspectRatio="none"></svg>
+    <div id="gap-tooltip" class="gap-tooltip"></div>
+  </div>
+  <h3 style="margin-top:24px">Récapitulatif</h3>
+  <div class="scrollable">
+    <table>
+      <thead><tr><th>Coureur</th><th>Dist</th><th>D+</th><th>Total</th><th>Mobile</th><th>Vit. mobile</th><th>Pauses</th><th>Temps arrêt</th><th>Δ arrivée</th></tr></thead>
+      <tbody id="flyby-tbody"></tbody>
+    </table>
+  </div>
+</section>
 <section class="tab" id="tab-docs">
   <div class="docs-layout">
     <aside class="docs-sidebar" id="docs-sidebar">__DOCS_SIDEBAR__</aside>
@@ -541,6 +578,7 @@ table tr:hover { background: var(--panel2); }
 </section>
 <script>
 const DATA = __DATA_JSON__;
+const FLYBY = __FLYBY_DATA__;
 
 // --- Tab handling
 document.querySelectorAll('nav.tabs button').forEach(btn => {
@@ -548,6 +586,7 @@ document.querySelectorAll('nav.tabs button').forEach(btn => {
     document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('active', b === btn));
     document.querySelectorAll('section.tab').forEach(s => s.classList.toggle('active', s.id === 'tab-' + btn.dataset.tab));
     if (btn.dataset.tab === 'overview') { setTimeout(() => map.invalidateSize(), 50); drawProfile(); }
+    if (btn.dataset.tab === 'flyby') { initFlyby(); setTimeout(() => flybyMap && flybyMap.invalidateSize(), 50); drawGapChart(); }
   });
 });
 
@@ -958,55 +997,16 @@ function clockTimeAtKm(km) {
 if (window.marked) {
   marked.setOptions({ gfm: true, breaks: false });
 }
-const CHECKLIST_STORAGE_PREFIX = 'c555-checklist-v1:';
-
-function wireChecklists(container, docFile) {
-  const boxes = container.querySelectorAll('input[type="checkbox"]');
-  if (!boxes.length) return;
-  const storageKey = CHECKLIST_STORAGE_PREFIX + docFile;
-  let state = {};
-  try { state = JSON.parse(localStorage.getItem(storageKey) || '{}'); } catch (_) {}
-  boxes.forEach((cb, index) => {
-    cb.disabled = false;
-    const li = cb.closest('li');
-    const label = (li ? li.textContent : '').trim().slice(0, 160);
-    const id = index + ':' + label;
-    cb.checked = !!state[id];
-    if (li) li.classList.toggle('checked', cb.checked);
-    cb.addEventListener('change', () => {
-      state[id] = cb.checked;
-      localStorage.setItem(storageKey, JSON.stringify(state));
-      if (li) li.classList.toggle('checked', cb.checked);
-      updateChecklistProgress(container);
-    });
-  });
-  updateChecklistProgress(container);
-}
-
-function updateChecklistProgress(container) {
-  const boxes = container.querySelectorAll('input[type="checkbox"]');
-  if (!boxes.length) return;
-  const done = Array.from(boxes).filter(cb => cb.checked).length;
-  const header = document.getElementById('viewer-title');
-  if (!header) return;
-  const base = header.dataset.baseTitle || header.textContent.replace(/\\s+\\(\\d+\\/\\d+\\)$/, '');
-  header.dataset.baseTitle = base;
-  header.textContent = base + ' (' + done + '/' + boxes.length + ')';
-}
-
 function openDoc(filename) {
   const content = DATA.docs[filename];
   if (!content) return;
   const title = (DATA.docs_meta.find(d => d.file === filename) || {}).title || filename;
-  const header = document.getElementById('viewer-title');
-  header.textContent = title;
-  header.dataset.baseTitle = title;
+  document.getElementById('viewer-title').textContent = title;
   const rawLink = document.getElementById('viewer-raw');
   rawLink.href = filename;
   rawLink.style.display = '';
   const body = document.getElementById('viewer-body');
   body.innerHTML = window.marked ? marked.parse(content) : '<pre>' + content.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) + '</pre>';
-  wireChecklists(body, filename);
   // Intercept internal MD links to switch viewer instead of leaving the page
   body.querySelectorAll('a').forEach(a => {
     const href = a.getAttribute('href') || '';
@@ -1033,16 +1033,167 @@ document.querySelectorAll('.docs-sidebar .doc-link').forEach(el => {
     document.querySelector('.docs-viewer').scrollTop = 0;
   });
 });
-// Open checklist by default when the user lands on the Documents tab
+// Open the first doc by default when the user lands on the Documents tab
 let docsOpened = false;
-const DEFAULT_DOC = DATA.docs['personal-checklist.md'] ? 'personal-checklist.md'
-  : (DATA.docs['checklist.md'] ? 'checklist.md' : (DATA.docs_meta[0] && DATA.docs_meta[0].file));
 document.querySelector('nav.tabs button[data-tab="docs"]').addEventListener('click', () => {
-  if (!docsOpened && DEFAULT_DOC) {
-    openDoc(DEFAULT_DOC);
+  if (!docsOpened && DATA.docs_meta.length) {
+    openDoc(DATA.docs_meta[0].file);
     docsOpened = true;
   }
 });
+
+// ============ Flyby ============
+let flybyMap = null, flybyInited = false, flybyMarkers = [], flybyPlaying = false;
+let flybyFrame = 0, flybySpeed = 300, flybyRAF = null, flybyLast = 0;
+const N_FRAMES = FLYBY.n_frames;
+const STEP_S = FLYBY.grid_step_s;
+
+function fmtDur(s) {
+  s = Math.max(0, Math.round(s));
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+  return h + 'h' + String(m).padStart(2, '0');
+}
+
+function initFlyby() {
+  if (flybyInited) return;
+  flybyInited = true;
+  flybyMap = L.map('flyby-map').setView([42.2, 9.2], 9);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '© OpenStreetMap'
+  }).addTo(flybyMap);
+  // route line (faint) from the main track
+  L.polyline(DATA.track.map(p => [p.lat, p.lon]), { color: '#8b949e', weight: 2, opacity: 0.5 }).addTo(flybyMap);
+  flybyMap.fitBounds(DATA.track.map(p => [p.lat, p.lon]));
+
+  // markers + legend + table
+  const legend = document.getElementById('flyby-legend');
+  const tbody = document.getElementById('flyby-tbody');
+  const userTotal = FLYBY.riders.find(r => r.is_user).summary.total_s;
+  FLYBY.riders.forEach((r, i) => {
+    const f0 = r.frames[0] || [42.2, 9.2];
+    const m = L.circleMarker([f0[0], f0[1]], {
+      radius: r.is_user ? 8 : 6, color: '#fff', weight: 2,
+      fillColor: r.color, fillOpacity: 1
+    }).addTo(flybyMap);
+    m.bindTooltip(r.label, { permanent: false, direction: 'top' });
+    flybyMarkers.push(m);
+    legend.insertAdjacentHTML('beforeend',
+      `<span><span class="dot" style="background:${r.color}"></span>${r.label}</span>`);
+    const s = r.summary;
+    const dq = r.is_user ? '—' :
+      (s.total_s < userTotal ? `<span style="color:var(--green)">${fmtDur(userTotal - s.total_s)} devant</span>`
+                             : `<span style="color:var(--red)">${fmtDur(s.total_s - userTotal)} derrière</span>`);
+    const pauseS = (r.pauses || []).reduce((a, p) => a + p.duration_s, 0);
+    tbody.insertAdjacentHTML('beforeend',
+      `<tr style="${r.is_user ? 'background:rgba(240,136,62,0.12)' : ''}">
+        <td><span class="dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${r.color};margin-right:6px"></span>${r.label}</td>
+        <td>${s.distance_km} km</td><td>${s.gain_m} m</td>
+        <td>${fmtDur(s.total_s)}</td><td>${fmtDur(s.moving_s)}</td>
+        <td>${s.avg_moving_kmh} km/h</td><td>${(r.pauses||[]).length}</td>
+        <td>${fmtDur(pauseS)}</td><td>${dq}</td>
+      </tr>`);
+  });
+
+  // wire controls
+  const slider = document.getElementById('flyby-slider');
+  slider.max = N_FRAMES - 1;
+  slider.addEventListener('input', () => { flybyFrame = +slider.value; renderFlybyFrame(); });
+  document.getElementById('flyby-play').addEventListener('click', toggleFlybyPlay);
+  document.querySelectorAll('.fb-speed').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.fb-speed').forEach(x => x.classList.toggle('active', x === b));
+    flybySpeed = +b.dataset.mult;
+  }));
+  renderFlybyFrame();
+}
+
+function renderFlybyFrame() {
+  FLYBY.riders.forEach((r, i) => {
+    const fr = r.frames[Math.min(flybyFrame, r.frames.length - 1)];
+    if (fr) {
+      flybyMarkers[i].setLatLng([fr[0], fr[1]]);
+      const done = flybyFrame >= r.finish_frame;
+      flybyMarkers[i].setStyle({ fillOpacity: done ? 0.35 : 1, opacity: done ? 0.5 : 1 });
+    }
+  });
+  document.getElementById('flyby-slider').value = flybyFrame;
+  document.getElementById('flyby-clock').textContent = fmtDur(flybyFrame * STEP_S);
+}
+
+function toggleFlybyPlay() {
+  flybyPlaying = !flybyPlaying;
+  document.getElementById('flyby-play').textContent = flybyPlaying ? '⏸ Pause' : '▶ Play';
+  if (flybyPlaying) { flybyLast = performance.now(); flybyRAF = requestAnimationFrame(flybyTick); }
+  else if (flybyRAF) cancelAnimationFrame(flybyRAF);
+}
+
+function flybyTick(now) {
+  if (!flybyPlaying) return;
+  const dt = (now - flybyLast) / 1000;
+  flybyLast = now;
+  flybyFrame += (dt * flybySpeed) / STEP_S;
+  if (flybyFrame >= N_FRAMES - 1) { flybyFrame = N_FRAMES - 1; renderFlybyFrame(); toggleFlybyPlay(); return; }
+  renderFlybyFrame();
+  flybyRAF = requestAnimationFrame(flybyTick);
+}
+
+// ---- Gap chart (gap minutes vs distance, one line per competitor) ----
+let gapDrawn = false;
+function drawGapChart() {
+  const svg = document.getElementById('gap-chart');
+  if (!svg) return;
+  const W = svg.clientWidth || 900, H = 300, PAD = { l: 44, r: 12, t: 12, b: 28 };
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const comps = FLYBY.riders.filter(r => !r.is_user && r.gap_curve);
+  let maxKm = FLYBY.route_km, maxAbs = 0;
+  comps.forEach(r => r.gap_curve.forEach(p => { maxAbs = Math.max(maxAbs, Math.abs(p[1])); }));
+  maxAbs = Math.ceil(maxAbs / 30) * 30 || 30;
+  const x = km => PAD.l + (km / maxKm) * (W - PAD.l - PAD.r);
+  const y = gap => PAD.t + (1 - (gap + maxAbs) / (2 * maxAbs)) * (H - PAD.t - PAD.b);
+  let svgParts = [];
+  // zero line
+  svgParts.push(`<line x1="${PAD.l}" y1="${y(0)}" x2="${W - PAD.r}" y2="${y(0)}" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="4 3"/>`);
+  svgParts.push(`<text x="${PAD.l + 4}" y="${y(0) - 4}" fill="#8b949e" font-size="10">moi (référence)</text>`);
+  // y gridlines
+  [-maxAbs, -maxAbs/2, maxAbs/2, maxAbs].forEach(g => {
+    svgParts.push(`<line x1="${PAD.l}" y1="${y(g)}" x2="${W - PAD.r}" y2="${y(g)}" stroke="#30363d" stroke-width="0.5"/>`);
+    svgParts.push(`<text x="4" y="${y(g) + 3}" fill="#8b949e" font-size="10">${g > 0 ? '+' : ''}${Math.round(g)}'</text>`);
+  });
+  // terrain markers (CP + climbs)
+  (FLYBY.terrain_markers || []).forEach(t => {
+    svgParts.push(`<line x1="${x(t.km)}" y1="${PAD.t}" x2="${x(t.km)}" y2="${H - PAD.b}" stroke="#30363d" stroke-width="0.5"/>`);
+  });
+  // x axis labels
+  for (let km = 0; km <= maxKm; km += 100) {
+    svgParts.push(`<text x="${x(km)}" y="${H - 8}" fill="#8b949e" font-size="10" text-anchor="middle">${km}</text>`);
+  }
+  // competitor lines
+  comps.forEach(r => {
+    const d = r.gap_curve.map((p, i) => `${i ? 'L' : 'M'}${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' ');
+    svgParts.push(`<path d="${d}" fill="none" stroke="${r.color}" stroke-width="2" opacity="0.9"/>`);
+  });
+  svg.innerHTML = svgParts.join('');
+  gapDrawn = true;
+
+  // tooltip
+  const tip = document.getElementById('gap-tooltip');
+  svg.onmousemove = (e) => {
+    const rect = svg.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width * W;
+    const km = Math.max(0, Math.min(maxKm, (px - PAD.l) / (W - PAD.l - PAD.r) * maxKm));
+    const idx = Math.round(km / 5);
+    let rows = `<strong>km ${Math.round(km)}</strong>`;
+    comps.forEach(r => {
+      const p = r.gap_curve[Math.min(idx, r.gap_curve.length - 1)];
+      if (p) rows += `<br><span style="color:${r.color}">${r.label}</span>: ${p[1] > 0 ? '+' : ''}${p[1]}'`;
+    });
+    tip.innerHTML = rows;
+    tip.style.display = 'block';
+    tip.style.left = Math.min(e.clientX - rect.left + 12, W - 160) + 'px';
+    tip.style.top = '12px';
+  };
+  svg.onmouseleave = () => { tip.style.display = 'none'; };
+}
+window.addEventListener('resize', () => { if (flybyInited && gapDrawn) drawGapChart(); });
 </script>
 </body>
 </html>
@@ -1288,6 +1439,9 @@ def build(out_html: Path = OUT_HTML):
 
     docs_embed, docs_available = load_docs()
 
+    flyby_path = CORSICA / "flyby_analysis.json"
+    flyby_json = flyby_path.read_text(encoding="utf-8") if flyby_path.exists() else "null"
+
     data = {
         "track": [{"lat": p["lat"], "lon": p["lon"], "ele": round(p["ele"], 1), "km": round(p["km"], 3)} for p in track_down],
         "track_times": track_times,
@@ -1313,6 +1467,7 @@ def build(out_html: Path = OUT_HTML):
     html_out = html_out.replace("__RISK_SECTORS__", render_risk_sectors())
     html_out = html_out.replace("__DOCS_SIDEBAR__", render_docs_sidebar(docs_available))
     html_out = html_out.replace("__DATA_JSON__", json.dumps(data, ensure_ascii=False))
+    html_out = html_out.replace("__FLYBY_DATA__", flyby_json)
 
     out_html.parent.mkdir(parents=True, exist_ok=True)
     out_html.write_text(html_out, encoding="utf-8")
