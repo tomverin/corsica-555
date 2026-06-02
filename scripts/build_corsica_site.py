@@ -570,7 +570,10 @@ table tr:hover { background: var(--panel2); }
     <div class="docs-viewer">
       <div class="viewer-header">
         <h2 id="viewer-title">Select a document</h2>
-        <a id="viewer-raw" href="#" target="_blank" style="display:none">Open raw .md ↗</a>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <button id="viewer-link" style="display:none; background:none; border:1px solid var(--border); color:var(--blue); font-size:12px; padding:4px 10px; border-radius:4px; cursor:pointer;">🔗 Lien direct</button>
+          <a id="viewer-raw" href="#" target="_blank" style="display:none">Open raw .md ↗</a>
+        </div>
       </div>
       <div class="md-content" id="viewer-body">
         <p style="color: var(--muted)">Choose a document from the sidebar to view it here. Rendered with marked.js. Internal links between docs are intercepted for in-page navigation.</p>
@@ -581,16 +584,35 @@ table tr:hover { background: var(--panel2); }
 <script>
 const DATA = __DATA_JSON__;
 const FLYBY = __FLYBY_DATA__;
+let docsOpened = false;
 
-// --- Tab handling
+// --- Tab handling + hash deep-linking (#tab=<name>, #doc=<file>)
+function activateTab(name, updateHash) {
+  const btn = document.querySelector('nav.tabs button[data-tab="' + name + '"]');
+  if (!btn) return;
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('active', b === btn));
+  document.querySelectorAll('section.tab').forEach(s => s.classList.toggle('active', s.id === 'tab-' + name));
+  if (name === 'overview') { setTimeout(() => map.invalidateSize(), 50); drawProfile(); }
+  if (name === 'flyby') { initFlyby(); setTimeout(() => flybyMap && flybyMap.invalidateSize(), 50); drawGapChart(); }
+  if (name === 'docs' && !docsOpened && DATA.docs_meta.length) { openDoc(DATA.docs_meta[0].file); docsOpened = true; }
+  if (updateHash !== false) { try { history.replaceState(null, '', '#tab=' + name); } catch (e) { location.hash = 'tab=' + name; } }
+}
 document.querySelectorAll('nav.tabs button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('active', b === btn));
-    document.querySelectorAll('section.tab').forEach(s => s.classList.toggle('active', s.id === 'tab-' + btn.dataset.tab));
-    if (btn.dataset.tab === 'overview') { setTimeout(() => map.invalidateSize(), 50); drawProfile(); }
-    if (btn.dataset.tab === 'flyby') { initFlyby(); setTimeout(() => flybyMap && flybyMap.invalidateSize(), 50); drawGapChart(); }
-  });
+  btn.addEventListener('click', () => activateTab(btn.dataset.tab));
 });
+function routeFromHash() {
+  const h = decodeURIComponent((location.hash || '').replace(/^#/, ''));
+  if (h.indexOf('doc=') === 0) {
+    const f = h.slice(4);
+    if (DATA.docs && DATA.docs[f]) { docsOpened = true; activateTab('docs', false); openDoc(f); return true; }
+  }
+  if (h.indexOf('tab=') === 0) {
+    const t = h.slice(4);
+    if (document.querySelector('nav.tabs button[data-tab="' + t + '"]')) { activateTab(t, false); return true; }
+  }
+  return false;
+}
+window.addEventListener('hashchange', routeFromHash);
 
 // --- Map
 const trackLatLngs = DATA.track.map(p => [p.lat, p.lon]);
@@ -1027,6 +1049,18 @@ function openDoc(filename) {
   document.querySelectorAll('.docs-sidebar .doc-link').forEach(el => {
     el.classList.toggle('active', el.dataset.file === filename);
   });
+  // Direct-link button: copy a shareable deep link to this doc
+  const linkBtn = document.getElementById('viewer-link');
+  if (linkBtn) {
+    linkBtn.style.display = '';
+    linkBtn.onclick = () => {
+      const url = location.origin + location.pathname + '#doc=' + encodeURIComponent(filename);
+      const done = () => { linkBtn.textContent = '✓ Lien copié'; setTimeout(() => linkBtn.textContent = '🔗 Lien direct', 1500); };
+      if (navigator.clipboard) navigator.clipboard.writeText(url).then(done).catch(done);
+      else { prompt('Lien direct :', url); }
+    };
+  }
+  try { history.replaceState(null, '', '#doc=' + encodeURIComponent(filename)); } catch (e) {}
 }
 document.querySelectorAll('.docs-sidebar .doc-link').forEach(el => {
   el.addEventListener('click', e => {
@@ -1034,14 +1068,6 @@ document.querySelectorAll('.docs-sidebar .doc-link').forEach(el => {
     openDoc(el.dataset.file);
     document.querySelector('.docs-viewer').scrollTop = 0;
   });
-});
-// Open the first doc by default when the user lands on the Documents tab
-let docsOpened = false;
-document.querySelector('nav.tabs button[data-tab="docs"]').addEventListener('click', () => {
-  if (!docsOpened && DATA.docs_meta.length) {
-    openDoc(DATA.docs_meta[0].file);
-    docsOpened = true;
-  }
 });
 
 // ============ Flyby ============
@@ -1196,6 +1222,9 @@ function drawGapChart() {
   svg.onmouseleave = () => { tip.style.display = 'none'; };
 }
 window.addEventListener('resize', () => { if (flybyInited && gapDrawn) drawGapChart(); });
+
+// Route from URL hash on initial load (deep links to a tab or a doc)
+routeFromHash();
 </script>
 </body>
 </html>
@@ -1400,7 +1429,7 @@ def render_docs_sidebar(available: list[tuple[str, str, str]]) -> str:
     out = []
     for fname, title, desc in available:
         out.append(
-            f'<a class="doc-link" href="#" data-file="{fname}">'
+            f'<a class="doc-link" href="#doc={fname}" data-file="{fname}">'
             f'<div class="title">{title}</div>'
             f'<div class="desc">{desc}</div>'
             f'</a>'
