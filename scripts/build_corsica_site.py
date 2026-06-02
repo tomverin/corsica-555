@@ -68,6 +68,8 @@ DOCS = [
      "Compact roadbook for race-day reference."),
     ("comparison-analysis.md", "Analyse comparative",
      "Comparaison post-course vs les concurrents 2e-6e (pauses, rythme, divergences). Voir aussi l'onglet Flyby."),
+    ("retrospective-corsica-2026.md", "Rétrospective entraînement",
+     "Bilan des 6 mois de prépa : arc de forme, volume par sport, distribution d'intensité, taper, heat training, leviers. Réutilisable."),
 ]
 
 NS = "{http://www.topografix.com/GPX/1/1}"
@@ -1412,6 +1414,8 @@ def load_docs() -> tuple[dict, list[tuple[str, str, str]]]:
     available: list[tuple[str, str, str]] = []
     for fname, title, desc in DOCS:
         path = CORSICA / fname
+        if not path.exists():
+            path = ROOT / fname  # some docs (e.g. retrospective) live at repo root
         if path.exists():
             embed[fname] = path.read_text(encoding="utf-8")
             available.append((fname, title, desc))
