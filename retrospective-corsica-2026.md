@@ -96,8 +96,12 @@ source de la fatigue retardée gérée pendant l'affûtage (cf. §4).
 | Ski | 10 | 16 h | 215 |
 | Yoga | 21 | 14 h | 86 |
 | Intervalles / VO2 | 16 | 13 h | 937 |
-| Heat training | 6 | 5 h | 165 |
+| Heat training | 10 | 8 h | 296 |
 | Natation | 10 | 2 h | 69 |
+
+*(Heat training : 10 séances réelles — 4 loggées en noms génériques type "Morning
+Ride" + une en "Heart training" — d'où un undercount initial à 6 si on filtre
+seulement sur le mot "heat".)*
 
 ### Distribution d'intensité — vélo (le point clé)
 
@@ -175,10 +179,17 @@ genou/épaule). C'est en partie ce qui rend le taper du §4 aussi propre.
 - **Hydratation pendant la séance** (500-750 ml + sel), pas après — pratique
   opérationnelle répétée pour la course.
 
-**Déroulé :** séances actives dès début mai → **bloc dédié 11-17 mai** →
-entretien jusqu'au 22-23 mai (dernière séance active 40') → **maintien passif
-en Corse J-4 à J-1** (exposition chaleur douce, sans chercher la dérive cardio).
-Le sauna prévu en fin de bloc a été annulé, compensé par l'exposition sur place.
+**Déroulé : 10 séances heat au total (~8 h)** — 2 essais en janvier (série
+"heat training" sur Zwift) puis le **bloc d'acclimatation de 8 séances en mai**
+(5, 7, 11, 12, 14, 15, 19, 22) → **maintien passif en Corse J-4 à J-1**
+(exposition chaleur douce, sans chercher la dérive cardio). Le sauna prévu en
+fin de bloc a été annulé, compensé par l'exposition sur place.
+
+> Note de comptage : 4 séances heat ont été enregistrées sous des noms
+> génériques ("Morning Ride") et une sous "Heart training" (typo). Elles se
+> repèrent à leur signature — home-trainer **plat (D+ 0), ~40-50', IF ~57-64,
+> NP 165-186** — recoupée avec les notes `daily/`. Un simple filtre sur le mot
+> "heat" n'en trouve que 6 → toujours recouper nom + signature + journal.
 
 **Signaux d'adaptation captés :**
 - **+7 W à cardio constant** entre deux séances (5 mai) = tolérance chaleur en
