@@ -22,41 +22,76 @@ Comparaison de ma course (7e au scratch) avec les concurrents classés 2e à 6e,
 | Aurelio (6e) | 486 km | 10 354 m | 28h08 | 25h20 | 19.2 km/h | 13 | 2h11 |
 | **Moi (7e)** | 489 km | 10 241 m | **28h48** | 26h12 | 18.6 km/h | 18 | **2h00** |
 
-## Les deux enseignements majeurs
+## Les enseignements
 
-### 1. Mes arrêts m'ont coûté ~1h20 vs le 2e-4e
+### 1. Mes pauses sont peu compressibles
 
-J'ai cumulé **2h00 de pauses** (18 arrêts), dont deux très longs aux
-checkpoints :
+J'ai cumulé **2h00 de pauses** (18 arrêts), mais une fois triées par
+compressibilité, presque tout est justifié :
 
-- **CP1 Ghisoni (km 164) : 34 min** — Laurianne n'y est restée que **11 min**.
-- **CP2 Crocicchia (km 333) : 37 min** — Laurianne **22 min**, Mathis encore
-  moins.
+- **CP1 Ghisoni (~20 min)** : attente volontaire que la pluie passe, pour ne
+  pas entamer la nuit trempé (risque hypothermie). Décision météo, défendable.
+- **CP2 Crocicchia (~37 min)** : reset complet — manger solide, lavage,
+  hygiène du cuissard. Investissement qui protège la 2e moitié sur 30h.
+- **2 mini-siestes (~10 min)** : gérer l'endormissement, sécurité.
+- **Le reste (~50 min)** : ravitaillement et remplissage de bouteilles,
+  incompressible.
 
-À eux seuls, mes deux CP représentent **1h11**. Clément (3e) n'a posé que
-1h02 de pauses *au total*. Si j'avais géré mes CP comme Laurianne (qui en a
-fait le minimum), j'économisais ~40 min — sans rouler plus vite d'un seul
-watt. **C'est le levier #1, et c'est gratuit : moins de temps à l'arrêt.**
+**Temps réellement récupérable : 15-25 min au mieux.** Contrairement à ce que
+suggère l'arithmétique brute, les pauses **ne sont pas le levier** pour gagner
+des places ici : elles étaient quasi toutes justifiées. Le levier est ailleurs.
 
-### 2. Je roule bien en descente/plat roulant, je perds en grimpe longue
+### 2. Ma grimpe est régulière — la durabilité est une force
 
-Mon temps **mobile** (26h12) est correct, mais ma vitesse mobile (18.6 km/h)
-est la 2e plus basse. Le détail par segment montre un schéma net :
+La moitié de mon temps en mouvement (13h04 sur 26h12) se passe en montée
+(>3%), et c'est là que se joue tout l'écart avec les places devant. Mais ma
+**VAM est remarquablement stable du départ à l'arrivée** :
 
-- **Je gagne du temps** sur les descentes et plats roulants : km 175-200 je
-  reprends **18 min à Mathis**, km 375-400 je reprends **23 min à Laurianne**,
-  km 350-375 je reprends **33 min à Aurelio**.
-- **Je perds gros sur les grimpes longues** et la fin de course :
-  - **Séquence C (km 425-450, +911 m)** : c'est mon pire secteur. Je tombe à
-    **9.6 km/h** ; j'y perds **70 min sur Clément**, **39 min sur Benoît**.
-    Fin de course + gros dénivelé + fatigue = effondrement du rythme.
-  - **Montée CP1 (km 150-175, +631 m)** : −48 min sur Clément, −28 min sur
-    Laurianne, à 12.5 km/h contre 16-21 km/h pour eux.
-  - **km 250-275 (+700 m)** : −16 min sur Mathis.
+| Portion | Temps grimpe | Ascension | VAM |
+|---|---|---|---|
+| Course live (km 0-420) | 11h18 | 8 621 m | **763 m/h** |
+| Zone Séquence C (km 420-460) | 1h32 | 1 115 m | 730 m/h |
+| Total | 13h04 | 9 926 m | 759 m/h |
 
-Autrement dit : la pénalité n'est pas le pneu (cf. `tyre-selection-alt.md`,
-validée), c'est le **rythme en montée longue sous fatigue**, surtout en
-seconde moitié de course.
+Pas d'effondrement de fin de course : 730 m/h sur Seq C contre 763 en course
+live. Les `9.6 km/h` sur la Séquence C, c'est une pente plus raide (911 m /
+13.6 km) à VAM quasi normale — pas un coup de moins bien. **Et ce ralenti
+était tactique** : positions verrouillées (6e à +15 km imprenable, 8e à
+−20 km à l'abri), donc j'ai levé le pied pour être frais sur la descente de
+Seq C, la plus dangereuse pour mon épaule. Bonne gestion, pas une faiblesse.
+
+### 3. Le déficit est un écart de puissance de grimpe uniforme
+
+Je roule bien en descente (33 km/h) et correctement au plat (21 km/h). Je
+gagne même du temps là-dessus : +18 min sur Mathis (km 175-200), +33 min sur
+Aurelio (km 350-375). Le déficit n'est donc **pas** un trou localisé ni un
+problème de pneu (cf. `tyre-selection-alt.md`, validée) : c'est un **manque de
+puissance de grimpe réparti sur toute la course**. Je grimpe à ~760 m/h là où
+il faudrait ~810 (6e) à ~835 (4e), soit **~20 W de plus en montée tenus du
+début à la fin**.
+
+## Puissance & forme 2024
+
+Estimation de ma puissance de grimpe de course : **~2.6 W/kg (~237 W)** à
+~91 kg système chargé, soit ~85% de mon eFTP 2026 (278 W) — cohérent pour de
+la montée fractionnée sur 27h.
+
+| Cible | VAM requise | Puissance montée | Temps mobile à gagner |
+|---|---|---|---|
+| 6e | 810 m/h (+7%) | ~253 W / 2.78 W/kg | 49 min |
+| 4e | 833 m/h (+10%) | ~260 W / 2.86 W/kg | 69 min |
+| 2e | 922 m/h (+21%) | ~285 W / 3.15 W/kg | 138 min |
+
+**Forme 2024 (FTP 310 W vs 278 aujourd'hui, +11.5%)** : à %FTP égal, ma
+puissance de grimpe serait passée à ~263 W, ma VAM à **~846 m/h**, gagnant
+**~80 min sur la montée**. De quoi finir **3e/4e au lieu de 7e** — à condition
+d'exprimer ce surplus dans les 2/3 où la course était encore ouverte. Le 2e
+restait hors d'atteinte même à 310 W ce jour-là.
+
+Comme mon déficit est **uniforme** et ma durabilité déjà bonne, une FTP plus
+haute le comblerait partout de la même façon : c'est un **plafond aérobie**
+qu'il faut relever (volume Z2 long + blocs grimpe), pas un problème de pacing
+ni de fin de course.
 
 ## Détail par concurrent
 
@@ -72,15 +107,15 @@ Sa trace fait **501 km contre 489 pour moi** (+12 km). La cause est visible :
 entre **km 49 et 63**, il s'écarte de ma ligne jusqu'à **~2 km** (deux runs
 de 6-7 km détectés). C'est soit une variante de tracé, soit une erreur de
 navigation précoce — il a roulé ~13 km de plus. **Et malgré ça il finit 3e**,
-parce qu'il pause très peu (1h02) et tient un rythme grimpe énorme : il me
-prend **70 min sur la seule Séquence C**. C'est le coureur le plus instructif :
-il montre ce que coûte ma fin de course.
+parce qu'il pause très peu (1h02) et tient une puissance de grimpe supérieure
+sur l'ensemble du parcours. (Le `+70 min` sur la Séquence C est trompeur :
+j'y roulais en mode tactique, positions déjà acquises.)
 
 ### Benoît — 4e (26h59)
 Profil proche du mien en vitesse mobile (19.5 vs 18.6) mais 23 min de pauses
-en moins et bien plus solide en fin de course (Séquence C : +39 min sur moi).
-Sur la montée CP1 (km 150-175) c'est le seul que je devance légèrement
-(+16 min pour moi).
+en moins. Sur la montée CP1 (km 150-175) c'est le seul que je devance
+légèrement (+16 min pour moi). L'écart se fait sur un cumul de petites montées,
+pas sur un secteur unique.
 
 ### Laurianne — 5e (27h28)
 Le contraste le plus parlant côté **discipline d'arrêt** : seulement **38 min
@@ -97,10 +132,14 @@ km 350-375 (+33 min pour moi), il me reprend sur les plats roulants.
 
 ## Ce que j'en retire pour la prochaine
 
-1. **Discipline aux CP** : objectif 12-15 min par checkpoint, pas 35. Gain
-   potentiel ~40-50 min sans effort supplémentaire.
-2. **Rythme grimpe longue en seconde moitié** : travailler la capacité à
-   tenir 13-15 km/h sur les cols après km 300 (fueling, gestion d'effort,
-   pacing). C'est là que se jouent les places.
-3. **Mon point fort à garder** : la descente et le plat roulant, où je suis
-   compétitif avec le top 4. Ne pas le gâcher en sur-freinant.
+1. **Le levier #1 est la puissance de grimpe, pas les pauses.** Mes arrêts
+   étaient quasi tous justifiés (météo, reset CP2, sommeil, ravito) :
+   ~15-25 min récupérables au mieux. Le vrai gain est de monter ~20 W en
+   montée, tenus toute la course → +1 à 2 places.
+2. **Relever le plafond aérobie** : mon déficit est uniforme (VAM stable
+   ~760 m/h), donc c'est la FTP/le seuil qu'il faut remonter, via volume Z2
+   long + blocs grimpe. À forme 2024 (310 W) j'étais 3e/4e sur ce même
+   parcours.
+3. **Garder mes points forts** : descente et plat roulant (compétitif avec le
+   top 4), durabilité (VAM constante sur 27h), et la lucidité tactique de fin
+   de course (gestion d'épaule sur Seq C). Rien à changer là-dessus.
